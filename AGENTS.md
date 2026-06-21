@@ -116,3 +116,19 @@ docs/             # ADRs and architecture notes
 ## Agent Behavior Overrides
 
 - PuLP, pandas, XGBoost, scikit-learn, and Next.js are pre-approved dependencies; do not flag them as new.
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs are tracked via GitHub Issues in this repository using the `gh` CLI. Pull requests are not treated as a request surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The default label mapping (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`) is used. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+The repository uses a single-context layout with one global `CONTEXT.md` and `docs/adr/` at the repository root. See `docs/agents/domain.md`.
