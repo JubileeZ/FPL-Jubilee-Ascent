@@ -4,27 +4,26 @@
 
 ## Project Identity
 
-<!-- AGENT: 2–3 sentences. What does this repo do and why does it exist?
-     Include the primary user, the core problem it solves, and the output it produces.
-     Example: "Order management API for an e-commerce platform. Handles cart, checkout,
-     and fulfillment state. Consumed by web and mobile frontends via REST." -->
+FPL analytics and optimization engine for a single user. Ingests live FPL API data, engineers predictive features, generates per-player per-gameweek xP projections via configurable statistical or ML models, and solves for the optimal 15-man squad and transfer plan using MILP. Optionally augments projections with LLM-sourced factors (rotation risk, injury context) before solving.
 
-**Stack:** <!-- AGENT: list primary language, runtime version, key frameworks, and package manager.
-              Example: Python 3.12 · uv · FastAPI · PostgreSQL · SQLAlchemy · pytest -->
+**Stack:** Python 3.12 · uv · FastAPI · Next.js 14 · PostgreSQL · SQLAlchemy · PuLP · pandas · scikit-learn
 
-**Monorepo:** yes / no <!-- AGENT: delete one -->
+**Monorepo:** yes
 
 ---
 
 ## Key Commands
 
-<!-- AGENT: Fill in the exact commands an agent needs to install, test, lint, and run this project.
-     Use the actual package manager and toolchain. Do not use generic placeholders. -->
-
 | Command | What it does |
 |---------|-------------|
-| (add your lint command here) | Lint |
-| (add your test command here) | Test |
+| `uv sync` | Install backend deps |
+| `cd frontend && npm install` | Install frontend deps |
+| `uv run ruff check .` | Lint (backend) |
+| `cd frontend && npm run lint` | Lint (frontend) |
+| `uv run pytest` | Test (backend) |
+| `cd frontend && npm run test` | Test (frontend) |
+| `uv run uvicorn app.main:app --reload` | Run backend dev server |
+| `cd frontend && npm run dev` | Run frontend dev server |
 
 **Pre-commit gate:** agents must run test and lint commands and confirm both pass before proposing any commit.
 
@@ -32,43 +31,44 @@
 
 ## Repo Structure
 
-<!-- AGENT: List top-level directories and key subdirectories only. Keep to ≤ 15 lines.
-     Annotate each line with a short purpose comment.
-     Example:
-     src/
-       api/        # route handlers
-       models/     # Pydantic schemas and ORM models
-       services/   # business logic, no framework imports
-       db/         # migrations and connection setup
-     tests/        # mirrors src/ structure
-     docs/         # ADRs and architecture notes
-     .env.example  # copy to .env, never commit .env
--->
-
 ```
-<repo structure here>
+backend/
+  app/
+    api/          # FastAPI route handlers
+    models/       # Pydantic schemas and ORM models
+    services/     # business logic (projection, blending, MILP)
+    clients/      # all external API calls (FPL API, LLM tool)
+    db/           # migrations and connection setup
+  tests/          # mirrors app/ structure
+frontend/
+  src/
+    app/          # Next.js App Router pages
+    components/   # UI components (squad view, charts, dashboard)
+    lib/          # API client, utils
+tools/
+  llm_tool/       # MCP server or CLI script for LLM factor generation
+data/
+  cache/          # Parquet files for historical FPL data (gitignored)
+docs/             # ADRs and architecture notes
+.env.example      # copy to .env, never commit .env
 ```
 
 ---
 
 ## Off-Limits: Never Touch Without Explicit Instruction
 
-<!-- AGENT: List files, dirs, or operations that are dangerous to modify autonomously.
-     These are hard stops — flag and wait for confirmation before proceeding.
-     Defaults below are universal; add project-specific entries. -->
-
 - `.env` and any file containing secrets or credentials
 - Database migrations — always flag, never auto-apply or auto-run
 - Production configuration files
 - Any file marked `# DO NOT EDIT` or `# GENERATED`
-- <!-- AGENT: add project-specific off-limits entries, e.g. vendored lock files, parquet datasets, etc. -->
+- `data/cache/` — never overwrite or delete Parquet files autonomously; treat as append-only
+- `tools/llm_tool/` — never modify LLM tool contract (input/output schema) without explicit instruction
+- `backend/app/db/migrations/` — flag all migration changes, never auto-apply
+- `VENDOR.lock` — never modify; pin is intentional
 
 ---
 
 ## Safety Rules
-
-<!-- AGENT: Supplement global safety rules with rules specific to this repo's risk profile.
-     The rules below are universal defaults — keep them and add project-specific ones below. -->
 
 **Universal (keep always):**
 - Never commit secrets, tokens, or credentials to any file.
@@ -78,61 +78,41 @@
 - Prefer reversible actions. When an irreversible action is required, state it clearly before executing.
 
 **Project-specific:**
-- <!-- AGENT: Add rules relevant to this codebase. Examples:
-       "Never mutate raw input files — always write to a new output path."
-       "All external API calls must go through src/clients/, never inline."
-       "Tests must not make real network calls — use fixtures or mocks." -->
+- All external API calls must go through `backend/app/clients/` — never inline.
+- Never mutate raw FPL API response data — always write to a new transformed output.
+- Tests must not make real network calls — use fixtures or mocks.
+- LLM tool output must always be validated against the defined contract schema before being passed to the blender.
+- `llm_weight` must never be hardcoded — always read from config or env.
 
 ---
 
 ## Code Conventions
 
-<!-- AGENT: Only document conventions that deviate from obvious defaults or language standards.
-     Skip this section if the project follows standard style with no notable exceptions.
-     Examples of what belongs here:
-     - "All service functions return Result objects, not raw values or exceptions."
-     - "Type hints required on all public functions and class attributes."
-     - "No bare except: — always catch specific exception types."
-     - "Tests live beside source (src/foo/tests/), not in a top-level tests/ dir." -->
-
-- <!-- AGENT: fill in or remove -->
+- Type hints required on all public functions and class attributes.
+- All service functions return Pydantic models, not raw dicts or bare values.
+- No bare `except:` — always catch specific exception types.
+- Projection blending logic lives exclusively in `backend/app/services/` — never in route handlers.
+- LLM factor schema defined in `backend/app/models/` — treat as the single source of truth.
 
 ---
 
 ## Known Footguns
 
-<!-- AGENT: Gotchas that will silently burn an agent or produce wrong output.
-     These are non-obvious traps — if it's obvious, skip it.
-     Examples:
-     - "uv run is required — do not call python directly, the venv won't activate."
-     - "The ORM session is not thread-safe — never share it across async tasks."
-     - "Config is loaded once at import time — changes to .env require a process restart."
-     - "Pagination is 0-indexed on the internal API but 1-indexed on the public API." -->
-
-- <!-- AGENT: fill in or remove -->
+- `uv run` is required — do not call `python` directly, the venv won't activate.
+- LLM tool must be called before the MILP solver — calling it after produces no effect on squad selection.
+- `llm_weight=0.0` disables LLM blending but the tool may still be invoked — check the flag before calling the tool.
+- Never use `sed -i` for file edits — use `.tmp` + `mv` atomic write pattern for BSD/GNU cross-platform compatibility.
 
 ---
 
 ## MCP / Tool Access
 
-<!-- AGENT: Tell agents what external tools, MCP servers, or integrations are active in this context.
-     Remove this section entirely if no MCP tools are connected.
-     Examples:
-     - "GitHub MCP connected — use for PR creation and issue lookup, not raw git push."
-     - "No internet access in the CI container — all data must be pre-fetched locally."
-     - "Database MCP available — read queries allowed, write queries require confirmation." -->
-
-- <!-- AGENT: fill in or remove this section -->
+- `tools/llm_tool/` MCP server active — use for LLM factor generation only, not general reasoning.
+- FPL API client available via `backend/app/clients/` — read-only, no write endpoints exist.
+- No internet access in test environment — all external calls must use fixtures.
 
 ---
 
 ## Agent Behavior Overrides
 
-<!-- AGENT: Override global defaults ONLY when this project specifically needs it.
-     Leave this section empty or remove it if global defaults are fine.
-     Examples:
-     - "caveman: OFF for all reasoning steps — show full logic chain, this is a debugging-heavy repo."
-     - "ponytail: PuLP and NumPy are pre-approved dependencies, do not flag them as new."
-     - "Auto-proceed on file edits within src/ — no confirmation needed for non-destructive writes." -->
-
-- <!-- AGENT: fill in or remove this section -->
+- PuLP, pandas, XGBoost, scikit-learn, and Next.js are pre-approved dependencies; do not flag them as new.
