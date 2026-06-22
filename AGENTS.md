@@ -101,6 +101,8 @@ docs/             # ADRs and architecture notes
 - LLM tool must be called before the MILP solver — calling it after produces no effect on squad selection.
 - `llm_weight=0.0` disables LLM blending but the tool may still be invoked — check the flag before calling the tool.
 - Never use `sed -i` for file edits — use `.tmp` + `mv` atomic write pattern for BSD/GNU cross-platform compatibility.
+- FPL API authentication uses `"x-api-authorization": "Bearer <token>"` header. Do NOT use the deprecated `"Cookie": "pl_profile=<token>"` header as it is no longer supported by the FPL API and will cause authentication to fail.
+
 
 ---
 

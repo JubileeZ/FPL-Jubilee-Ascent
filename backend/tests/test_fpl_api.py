@@ -96,7 +96,7 @@ async def test_fetch_user_details(mock_save: MagicMock) -> None:
     assert result == {"player": {"id": 1234}}
     mock_client.get.assert_called_once_with(
         "https://fantasy.premierleague.com/api/me/",
-        headers={"Cookie": "pl_profile=fake-token"},
+        headers={"x-api-authorization": "Bearer fake-token"},
         params=None,
     )
     mock_save.assert_called_once_with("me.json", {"player": {"id": 1234}})
@@ -115,7 +115,7 @@ async def test_fetch_user_team(mock_save: MagicMock) -> None:
     assert result == {"picks": [], "transfers": []}
     mock_client.get.assert_called_once_with(
         "https://fantasy.premierleague.com/api/my-team/9876/",
-        headers={"Cookie": "pl_profile=fake-token"},
+        headers={"x-api-authorization": "Bearer fake-token"},
         params=None,
     )
     mock_save.assert_called_once_with("my_team_9876.json", {"picks": [], "transfers": []})
@@ -134,7 +134,7 @@ async def test_fetch_entry_summary(mock_save: MagicMock) -> None:
     assert result == {"id": 9876, "name": "FC Test"}
     mock_client.get.assert_called_once_with(
         "https://fantasy.premierleague.com/api/entry/9876/",
-        headers={"Cookie": "pl_profile=fake-token"},
+        headers={"x-api-authorization": "Bearer fake-token"},
         params=None,
     )
     mock_save.assert_called_once_with("entry_9876.json", {"id": 9876, "name": "FC Test"})

@@ -23,3 +23,8 @@ _Avoid_: Cache, historical data
 **Projection**:
 A per-player per-gameweek expected points estimate produced by a model. Stored in PostgreSQL with `model_version` and `run_at` so outputs across model versions can be compared.
 _Avoid_: xP output, prediction, score
+
+**FPL Authentication Token**:
+The JWT session token extracted via Playwright SSO login and cached locally in `data/session_token.json`. Sent to authenticated endpoints in the `"x-api-authorization": "Bearer <token>"` header.
+_Avoid_: Cookie auth, pl_profile cookie, raw cookie session
+
