@@ -110,7 +110,7 @@ async def test_fetch_user_team(mock_save: MagicMock) -> None:
     mock_response.json.return_value = {"picks": [], "transfers": []}
     mock_client.get.return_value = mock_response
 
-    result = await fetch_user_team(mock_client, team_id=9876, token="fake-token", write_cache=True)
+    result = await fetch_user_team(mock_client, entry_id=9876, token="fake-token", write_cache=True)
 
     assert result == {"picks": [], "transfers": []}
     mock_client.get.assert_called_once_with(
@@ -129,7 +129,7 @@ async def test_fetch_entry_summary(mock_save: MagicMock) -> None:
     mock_response.json.return_value = {"id": 9876, "name": "FC Test"}
     mock_client.get.return_value = mock_response
 
-    result = await fetch_entry_summary(mock_client, team_id=9876, token="fake-token", write_cache=True)
+    result = await fetch_entry_summary(mock_client, entry_id=9876, token="fake-token", write_cache=True)
 
     assert result == {"id": 9876, "name": "FC Test"}
     mock_client.get.assert_called_once_with(
@@ -148,7 +148,7 @@ async def test_fetch_entry_history(mock_save: MagicMock) -> None:
     mock_response.json.return_value = {"current": [], "past": []}
     mock_client.get.return_value = mock_response
 
-    result = await fetch_entry_history(mock_client, team_id=9876, token=None, write_cache=True)
+    result = await fetch_entry_history(mock_client, entry_id=9876, token=None, write_cache=True)
 
     assert result == {"current": [], "past": []}
     mock_client.get.assert_called_once_with(
@@ -167,7 +167,7 @@ async def test_fetch_entry_transfers(mock_save: MagicMock) -> None:
     mock_response.json.return_value = [{"element_in": 1, "element_out": 2}]
     mock_client.get.return_value = mock_response
 
-    result = await fetch_entry_transfers(mock_client, team_id=9876, token=None, write_cache=True)
+    result = await fetch_entry_transfers(mock_client, entry_id=9876, token=None, write_cache=True)
 
     assert result == [{"element_in": 1, "element_out": 2}]
     mock_client.get.assert_called_once_with(
@@ -186,7 +186,7 @@ async def test_fetch_gameweek_picks(mock_save: MagicMock) -> None:
     mock_response.json.return_value = {"picks": []}
     mock_client.get.return_value = mock_response
 
-    result = await fetch_gameweek_picks(mock_client, team_id=9876, gw_id=38, token=None, write_cache=True)
+    result = await fetch_gameweek_picks(mock_client, entry_id=9876, gw_id=38, token=None, write_cache=True)
 
     assert result == {"picks": []}
     mock_client.get.assert_called_once_with(

@@ -5,12 +5,20 @@ FPL analytics and optimization engine for a single user. Ingests live FPL API da
 ## Language
 
 **User Squad**:
-The user's specific 15-player Fantasy Premier League squad.
-_Avoid_: Manager team, FPL team, team
+The user's specific 15-player Fantasy Premier League squad. Keyed by `entry_id` (e.g., `6025459`).
+_Avoid_: Manager team, FPL team, team, manager_id
 
 **Club**:
-A real-world Premier League club (e.g., Arsenal, Liverpool). Maps to `team` in the FPL API.
+A real-world Premier League club (e.g., Arsenal, Liverpool). Keyed by `team_id` (or `club_id`). Maps to `team` in the FPL API.
 _Avoid_: Team (in domain model)
+
+**Position**:
+A player's general pitch role (Goalkeeper, Defender, Midfielder, Forward). Maps to `element_type` in the FPL API. Stored as `position_id` in relational tables.
+_Avoid_: position (used as lineup index)
+
+**Lineup Index**:
+The squad slot/lineup position within the User Squad (integer 1 to 15, e.g. starting GK is 1, bench GK is 12). Maps to `position` in the FPL `/my-team/` endpoint picks.
+_Avoid_: position_id, player position
 
 **Player**:
 A Premier League footballer available for selection. Maps to `element` in the FPL API.

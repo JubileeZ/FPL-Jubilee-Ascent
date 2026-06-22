@@ -103,61 +103,61 @@ async def fetch_user_details(
 
 
 async def fetch_user_team(
-    client: httpx.AsyncClient, team_id: int, token: str, write_cache: bool = True
+    client: httpx.AsyncClient, entry_id: int, token: str, write_cache: bool = True
 ) -> dict[str, Any]:
     """Fetch current user's team squad, transfer status, chips (requires authentication)."""
-    url = f"{BASE_URL}/my-team/{team_id}/"
+    url = f"{BASE_URL}/my-team/{entry_id}/"
     headers = {"x-api-authorization": f"Bearer {token}"}
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
-        save_raw_cache(f"my_team_{team_id}.json", data)
+        save_raw_cache(f"my_team_{entry_id}.json", data)
     return data
 
 
 async def fetch_entry_summary(
-    client: httpx.AsyncClient, team_id: int, token: Optional[str] = None, write_cache: bool = True
+    client: httpx.AsyncClient, entry_id: int, token: Optional[str] = None, write_cache: bool = True
 ) -> dict[str, Any]:
     """Fetch general manager details, standings, and budget history."""
-    url = f"{BASE_URL}/entry/{team_id}/"
+    url = f"{BASE_URL}/entry/{entry_id}/"
     headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
-        save_raw_cache(f"entry_{team_id}.json", data)
+        save_raw_cache(f"entry_{entry_id}.json", data)
     return data
 
 
 async def fetch_entry_history(
-    client: httpx.AsyncClient, team_id: int, token: Optional[str] = None, write_cache: bool = True
+    client: httpx.AsyncClient, entry_id: int, token: Optional[str] = None, write_cache: bool = True
 ) -> dict[str, Any]:
     """Fetch past seasons, gameweek performance history, and active chips."""
-    url = f"{BASE_URL}/entry/{team_id}/history/"
+    url = f"{BASE_URL}/entry/{entry_id}/history/"
     headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
-        save_raw_cache(f"entry_{team_id}_history.json", data)
+        save_raw_cache(f"entry_{entry_id}_history.json", data)
     return data
 
 
 async def fetch_entry_transfers(
-    client: httpx.AsyncClient, team_id: int, token: Optional[str] = None, write_cache: bool = True
+    client: httpx.AsyncClient, entry_id: int, token: Optional[str] = None, write_cache: bool = True
 ) -> list[dict[str, Any]]:
     """Fetch transaction history of all player transfers made."""
-    url = f"{BASE_URL}/entry/{team_id}/transfers/"
+    url = f"{BASE_URL}/entry/{entry_id}/transfers/"
     headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
-        save_raw_cache(f"entry_{team_id}_transfers.json", data)
+        save_raw_cache(f"entry_{entry_id}_transfers.json", data)
     return data
 
 
 async def fetch_gameweek_picks(
-    client: httpx.AsyncClient, team_id: int, gw_id: int, token: Optional[str] = None, write_cache: bool = True
+    client: httpx.AsyncClient, entry_id: int, gw_id: int, token: Optional[str] = None, write_cache: bool = True
 ) -> dict[str, Any]:
     """Fetch manager's player selections/picks for a specific gameweek."""
-    url = f"{BASE_URL}/entry/{team_id}/event/{gw_id}/picks/"
+    url = f"{BASE_URL}/entry/{entry_id}/event/{gw_id}/picks/"
     headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
-        save_raw_cache(f"entry_{team_id}_picks_gw_{gw_id}.json", data)
+        save_raw_cache(f"entry_{entry_id}_picks_gw_{gw_id}.json", data)
     return data
 
