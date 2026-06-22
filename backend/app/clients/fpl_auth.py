@@ -94,15 +94,80 @@ async def async_login() -> str:
 
         # Wait for the login form input fields to be visible
         logger.info("Waiting for login form fields...")
-        email_input = page.locator('input[name="login"]')
-        await email_input.wait_for(state="visible", timeout=15000)
+        email_input = None
+        email_selectors = ['input[name="login"]', 'input[type="email"]', '#login', '#email', 'input[name="email"]']
+        
+        # Try to wait for any of the common selectors to appear
+        for selector in email_selectors:
+            try:
+                locator = page.locator(selector)
+                # Wait with a short timeout per selector to check presence
+                await locator.wait_for(state="visible", timeout=3000)
+                email_input = locator
+                logger.info(f"Found email input field using: {selector}")
+                break
+            except Exception:
+                continue
+
+        if not email_input:
+            # Fallback to waiting for the primary selector to log diagnostic info on failure
+            try:
+                email_input = page.locator('input[name="login"]')
+                await email_input.wait_for(state="visible", timeout=5000)
+            except Exception as e:
+                logger.error(f"Failed to find email input field. Timeout error: {e}")
+                try:
+                    title = await page.title()
+                    logger.error(f"Current page title: {title}")
+                    url = page.url
+                    logger.error(f"Current URL: {url}")
+                except Exception:
+                    pass
+                try:
+                    inputs = await page.locator("input").all()
+                    logger.error(f"Found {len(inputs)} input elements on the page:")
+                    for idx, inp in enumerate(inputs):
+                        html = await inp.evaluate("el => el.outerHTML")
+                        logger.error(f"  Input {idx}: {html}")
+                except Exception as ex:
+                    logger.error(f"Failed to inspect input elements: {ex}")
+                raise
 
         logger.info("Filling credentials...")
         await email_input.fill(email)
-        await page.locator('input[name="password"]').fill(password)
 
+        # Locate and fill password
+        password_input = None
+        password_selectors = ['input[name="password"]', 'input[type="password"]', '#password']
+        for selector in password_selectors:
+            try:
+                locator = page.locator(selector)
+                if await locator.is_visible():
+                    password_input = locator
+                    break
+            except Exception:
+                continue
+        
+        if not password_input:
+            password_input = page.locator('input[name="password"]')
+        await password_input.fill(password)
+
+        # Locate and click submit
         logger.info("Submitting form...")
-        await page.locator('button[type="submit"]').click()
+        submit_btn = None
+        submit_selectors = ['button[type="submit"]', 'button:has-text("Sign In")', 'button:has-text("Log in")', 'input[type="submit"]']
+        for selector in submit_selectors:
+            try:
+                locator = page.locator(selector)
+                if await locator.is_visible():
+                    submit_btn = locator
+                    break
+            except Exception:
+                continue
+        
+        if not submit_btn:
+            submit_btn = page.locator('button[type="submit"]')
+        await submit_btn.click()
 
         # Wait for redirect/network idle to ensure login flow completes
         await page.wait_for_load_state("networkidle")
