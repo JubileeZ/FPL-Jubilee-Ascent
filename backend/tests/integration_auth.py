@@ -1,7 +1,9 @@
 import asyncio
 import os
+import logging
 from app.clients.fpl_auth import get_jwt_token, TOKEN_CACHE_PATH
 
+logging.basicConfig(level=logging.INFO)
 
 async def main() -> None:
     print("Starting FPL authentication integration test...")

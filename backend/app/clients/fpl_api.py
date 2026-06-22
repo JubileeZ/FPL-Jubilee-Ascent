@@ -95,7 +95,7 @@ async def fetch_user_details(
 ) -> dict[str, Any]:
     """Fetch logged-in user profile details (entry ID, personal details)."""
     url = f"{BASE_URL}/me/"
-    headers = {"Cookie": f"pl_profile={token}"}
+    headers = {"x-api-authorization": f"Bearer {token}"}
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
         save_raw_cache("me.json", data)
@@ -107,7 +107,7 @@ async def fetch_user_team(
 ) -> dict[str, Any]:
     """Fetch current user's team squad, transfer status, chips (requires authentication)."""
     url = f"{BASE_URL}/my-team/{team_id}/"
-    headers = {"Cookie": f"pl_profile={token}"}
+    headers = {"x-api-authorization": f"Bearer {token}"}
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
         save_raw_cache(f"my_team_{team_id}.json", data)
@@ -119,7 +119,7 @@ async def fetch_entry_summary(
 ) -> dict[str, Any]:
     """Fetch general manager details, standings, and budget history."""
     url = f"{BASE_URL}/entry/{team_id}/"
-    headers = {"Cookie": f"pl_profile={token}"} if token else None
+    headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
         save_raw_cache(f"entry_{team_id}.json", data)
@@ -131,7 +131,7 @@ async def fetch_entry_history(
 ) -> dict[str, Any]:
     """Fetch past seasons, gameweek performance history, and active chips."""
     url = f"{BASE_URL}/entry/{team_id}/history/"
-    headers = {"Cookie": f"pl_profile={token}"} if token else None
+    headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
         save_raw_cache(f"entry_{team_id}_history.json", data)
@@ -143,7 +143,7 @@ async def fetch_entry_transfers(
 ) -> list[dict[str, Any]]:
     """Fetch transaction history of all player transfers made."""
     url = f"{BASE_URL}/entry/{team_id}/transfers/"
-    headers = {"Cookie": f"pl_profile={token}"} if token else None
+    headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
         save_raw_cache(f"entry_{team_id}_transfers.json", data)
@@ -155,7 +155,7 @@ async def fetch_gameweek_picks(
 ) -> dict[str, Any]:
     """Fetch manager's player selections/picks for a specific gameweek."""
     url = f"{BASE_URL}/entry/{team_id}/event/{gw_id}/picks/"
-    headers = {"Cookie": f"pl_profile={token}"} if token else None
+    headers = {"x-api-authorization": f"Bearer {token}"} if token else None
     data = await _make_get_request(client, url, headers=headers)
     if write_cache:
         save_raw_cache(f"entry_{team_id}_picks_gw_{gw_id}.json", data)

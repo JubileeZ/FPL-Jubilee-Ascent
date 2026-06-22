@@ -33,7 +33,7 @@ def is_jwt_expired(token: str) -> bool:
 
 
 async def async_login() -> str:
-    """Automate login via Playwright to retrieve the pl_profile JWT token cookie."""
+    """Automate login via Playwright to retrieve the x-api-authorization JWT token."""
     email = os.getenv("FPL_EMAIL")
     password = os.getenv("FPL_PASSWORD")
 
@@ -169,33 +169,46 @@ async def async_login() -> str:
             submit_btn = page.locator('button[type="submit"]').first
         await submit_btn.click()
 
-        # Wait for redirect/network idle to ensure login flow completes
-        await page.wait_for_load_state("networkidle")
+        logger.info("Waiting for login redirect to complete...")
+        try:
+            await page.wait_for_url("https://fantasy.premierleague.com/", timeout=15000)
+            logger.info("Redirect completed successfully.")
+        except Exception as e:
+            logger.warning(f"wait_for_url timeout or error: {e}")
 
-        cookies = await context.cookies()
-        logger.info(f"Captured {len(cookies)} cookies after login.")
+        # Setup request interception to catch the auth token
+        logger.info("Setting up request interception for API authorization header...")
+        found_auth = None
         
-        # Dump cookie names to help identify the right auth token
-        cookie_names = [c["name"] for c in cookies]
-        logger.info(f"Available cookies: {', '.join(cookie_names)}")
+        async def handle_request(request):
+            nonlocal found_auth
+            if "/api/" in request.url:
+                headers = await request.all_headers()
+                auth_headers = {k:v for k,v in headers.items() if 'auth' in k.lower() or 'bearer' in v.lower() or 'token' in k.lower()}
+                if auth_headers and 'x-api-authorization' in auth_headers:
+                    logger.info("x-api-authorization header captured!")
+                    found_auth = auth_headers['x-api-authorization']
         
-        pl_profile_cookie = None
-        for cookie in cookies:
-            if cookie["name"] == "pl_profile":
-                pl_profile_cookie = cookie["value"]
+        page.on("request", handle_request)
+        
+        logger.info("Navigating to /transfers to trigger authenticated API calls...")
+        await page.goto("https://fantasy.premierleague.com/transfers")
+        
+        # Wait up to 15 seconds for an API call with the token
+        for _ in range(15):
+            if found_auth:
                 break
+            await page.wait_for_timeout(1000)
 
         await browser.close()
 
-        if not pl_profile_cookie:
-            # Let's dump more detail if it failed
-            logger.error("Failed to find 'pl_profile'. Full cookie list:")
-            for c in cookies:
-                logger.error(f"Cookie: {c['name']} (Domain: {c['domain']})")
-            raise RuntimeError(f"Failed to capture 'pl_profile' cookie during login flow. Available cookies: {', '.join(cookie_names)}")
+        if not found_auth:
+            raise RuntimeError("Failed to capture 'x-api-authorization' bearer token during login flow.")
 
-        logger.info("Successfully captured pl_profile session token.")
-        return pl_profile_cookie
+        # Extract the token from "Bearer <token>"
+        token = found_auth.replace("Bearer ", "").strip()
+        logger.info("Successfully captured session token.")
+        return token
 
 
 async def get_jwt_token(force_refresh: bool = False) -> str:
