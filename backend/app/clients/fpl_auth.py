@@ -49,11 +49,54 @@ async def async_login() -> str:
         )
         page = await context.new_page()
 
-        logger.info("Navigating to login page...")
-        await page.goto("https://users.premierleague.com/accounts/login/")
+        logger.info("Navigating to fantasy.premierleague.com...")
+        await page.goto("https://fantasy.premierleague.com/")
+
+        # Auto-accept cookies if prompt appears
+        try:
+            accept_btn = page.locator("#onetrust-accept-btn-handler")
+            await accept_btn.wait_for(state="visible", timeout=5000)
+            await accept_btn.click()
+            logger.info("Cookies accepted.")
+        except Exception:
+            logger.info("No cookie banner detected or timeout.")
+
+        # Locate and click 'Sign In' or 'Log in' link/button
+        logger.info("Clicking sign in link...")
+        sign_in_selectors = [
+            'a:has-text("Sign in")',
+            'a:has-text("Log in")',
+            'a:has-text("Sign In")',
+            'a:has-text("Log In")',
+            'button:has-text("Sign in")',
+            'button:has-text("Log in")',
+            '#login'
+        ]
+        
+        clicked = False
+        for selector in sign_in_selectors:
+            try:
+                btn = page.locator(selector)
+                if await btn.is_visible():
+                    await btn.click()
+                    clicked = True
+                    logger.info(f"Clicked sign in link via: {selector}")
+                    break
+            except Exception:
+                continue
+                
+        if not clicked:
+            # Fallback to navigating directly to users.premierleague.com/accounts/login/ if we couldn't click it
+            logger.warning("Could not locate login button dynamically, navigating to login URL directly...")
+            await page.goto("https://users.premierleague.com/accounts/login/")
+
+        # Wait for the login form input fields to be visible
+        logger.info("Waiting for login form fields...")
+        email_input = page.locator('input[name="login"]')
+        await email_input.wait_for(state="visible", timeout=15000)
 
         logger.info("Filling credentials...")
-        await page.locator('input[name="login"]').fill(email)
+        await email_input.fill(email)
         await page.locator('input[name="password"]').fill(password)
 
         logger.info("Submitting form...")
