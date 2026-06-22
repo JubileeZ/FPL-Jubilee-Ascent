@@ -1,0 +1,26 @@
+# Version control
+.DS_Store
+
+# Environment variables
+.env
+
+# Python caching & virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Node/Frontend dependencies and build output
+node_modules/
+.next/
+dist/
+build/
+
+# FPL raw data cache
+data/raw/*
+!data/raw/.gitkeep
