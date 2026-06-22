@@ -24,3 +24,7 @@ build/
 # FPL raw data cache
 data/raw/*
 !data/raw/.gitkeep
+
+# Cached FPL auth session
+data/session_token.json
+
