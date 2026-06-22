@@ -3,6 +3,7 @@ import base64
 import json
 import time
 import logging
+import asyncio
 from pathlib import Path
 from playwright.async_api import async_playwright
 
@@ -169,15 +170,18 @@ async def async_login() -> str:
             submit_btn = page.locator('button[type="submit"]').first
         await submit_btn.click()
 
-        # Wait for redirect/network idle to ensure login flow completes
-        await page.wait_for_load_state("networkidle")
-
-        cookies = await context.cookies()
+        # Wait for redirect/login flow to complete by polling for the pl_profile cookie
+        logger.info("Waiting for session cookie to be set...")
         pl_profile_cookie = None
-        for cookie in cookies:
-            if cookie["name"] == "pl_profile":
-                pl_profile_cookie = cookie["value"]
+        for _ in range(30):  # Poll for up to 15 seconds
+            cookies = await context.cookies()
+            for cookie in cookies:
+                if cookie["name"] == "pl_profile":
+                    pl_profile_cookie = cookie["value"]
+                    break
+            if pl_profile_cookie:
                 break
+            await asyncio.sleep(0.5)
 
         await browser.close()
 
