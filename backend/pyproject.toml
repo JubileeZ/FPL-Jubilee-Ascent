@@ -1,0 +1,27 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.18.4",
+    "fastapi>=0.138.0",
+    "httpx>=0.28.1",
+    "pandas>=3.0.3",
+    "pulp>=3.3.2",
+    "scikit-learn>=1.9.0",
+    "sqlalchemy>=2.0.51",
+    "tenacity>=9.1.4",
+    "uvicorn>=0.49.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.15.18",
+]
+
+[tool.pytest.ini_options]
+pythonpath = "."
+
