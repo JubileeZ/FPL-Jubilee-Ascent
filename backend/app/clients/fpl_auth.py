@@ -40,12 +40,14 @@ async def async_login() -> str:
     if not email or not password:
         raise ValueError("FPL_EMAIL and FPL_PASSWORD environment variables must be set.")
 
-    logger.info("Initializing headless browser login...")
+    headless_env = os.getenv("FPL_HEADLESS", "true").lower() in ("true", "1", "yes")
+    logger.info(f"Initializing browser login (headless={headless_env})...")
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        # Using a realistic User-Agent to avoid anti-bot checks
+        browser = await p.chromium.launch(headless=headless_env)
+        # Using a realistic User-Agent and desktop viewport to avoid mobile layout collapse and anti-bot checks
         context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1280, "height": 720}
         )
         page = await context.new_page()
 
