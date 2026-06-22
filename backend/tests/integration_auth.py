@@ -5,6 +5,22 @@ from app.clients.fpl_auth import get_jwt_token, TOKEN_CACHE_PATH
 
 async def main() -> None:
     print("Starting FPL authentication integration test...")
+    # ponytail: manual env loading without external dependencies
+    from pathlib import Path
+    env_path = Path(__file__).resolve().parents[2] / ".env"
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    parts = line.split("=", 1)
+                    if len(parts) == 2:
+                        k, v = parts
+                        # strip quotes
+                        if v.startswith(('"', "'")) and v.endswith(('"', "'")):
+                            v = v[1:-1]
+                        os.environ.setdefault(k.strip(), v.strip())
+
     email = os.getenv("FPL_EMAIL")
     password = os.getenv("FPL_PASSWORD")
 
