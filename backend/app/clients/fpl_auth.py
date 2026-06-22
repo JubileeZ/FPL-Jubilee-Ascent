@@ -155,10 +155,10 @@ async def async_login() -> str:
         # Locate and click submit
         logger.info("Submitting form...")
         submit_btn = None
-        submit_selectors = ['button[type="submit"]', 'button:has-text("Sign In")', 'button:has-text("Log in")', 'input[type="submit"]']
+        submit_selectors = ['#btnSignIn', 'button[type="submit"]', 'button:has-text("Sign In")', 'button:has-text("Log in")', 'input[type="submit"]']
         for selector in submit_selectors:
             try:
-                locator = page.locator(selector)
+                locator = page.locator(selector).first
                 if await locator.is_visible():
                     submit_btn = locator
                     break
@@ -166,7 +166,7 @@ async def async_login() -> str:
                 continue
         
         if not submit_btn:
-            submit_btn = page.locator('button[type="submit"]')
+            submit_btn = page.locator('button[type="submit"]').first
         await submit_btn.click()
 
         # Wait for redirect/network idle to ensure login flow completes
