@@ -173,6 +173,12 @@ async def async_login() -> str:
         await page.wait_for_load_state("networkidle")
 
         cookies = await context.cookies()
+        logger.info(f"Captured {len(cookies)} cookies after login.")
+        
+        # Dump cookie names to help identify the right auth token
+        cookie_names = [c["name"] for c in cookies]
+        logger.info(f"Available cookies: {', '.join(cookie_names)}")
+        
         pl_profile_cookie = None
         for cookie in cookies:
             if cookie["name"] == "pl_profile":
@@ -182,7 +188,11 @@ async def async_login() -> str:
         await browser.close()
 
         if not pl_profile_cookie:
-            raise RuntimeError("Failed to capture 'pl_profile' cookie during login flow.")
+            # Let's dump more detail if it failed
+            logger.error("Failed to find 'pl_profile'. Full cookie list:")
+            for c in cookies:
+                logger.error(f"Cookie: {c['name']} (Domain: {c['domain']})")
+            raise RuntimeError(f"Failed to capture 'pl_profile' cookie during login flow. Available cookies: {', '.join(cookie_names)}")
 
         logger.info("Successfully captured pl_profile session token.")
         return pl_profile_cookie
