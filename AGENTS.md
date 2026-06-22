@@ -6,7 +6,7 @@
 
 FPL analytics and optimization engine for a single user. Ingests live FPL API data, engineers predictive features, generates per-player per-gameweek xP projections via configurable statistical or ML models, and solves for the optimal 15-man squad and transfer plan using MILP. Optionally augments projections with LLM-sourced factors (rotation risk, injury context) before solving.
 
-**Stack:** Python 3.12 · uv · FastAPI · Next.js 14 · PostgreSQL · SQLAlchemy · PuLP · pandas · scikit-learn
+**Stack:** Python 3.12 · uv · FastAPI · Next.js 14 · PostgreSQL · SQLAlchemy · PuLP · pandas · scikit-learn · httpx · tenacity · Playwright
 
 **Monorepo:** yes
 
@@ -48,7 +48,7 @@ frontend/
 tools/
   llm_tool/       # MCP server or CLI script for LLM factor generation
 data/
-  cache/          # Parquet files for historical FPL data (gitignored)
+  raw/            # Raw FPL API JSON responses (gitignored, rate-limit shield)
 docs/             # ADRs and architecture notes
 .env.example      # copy to .env, never commit .env
 ```
@@ -61,7 +61,6 @@ docs/             # ADRs and architecture notes
 - Database migrations — always flag, never auto-apply or auto-run
 - Production configuration files
 - Any file marked `# DO NOT EDIT` or `# GENERATED`
-- `data/cache/` — never overwrite or delete Parquet files autonomously; treat as append-only
 - `tools/llm_tool/` — never modify LLM tool contract (input/output schema) without explicit instruction
 - `backend/app/db/migrations/` — flag all migration changes, never auto-apply
 - `VENDOR.lock` — never modify; pin is intentional
@@ -115,7 +114,8 @@ docs/             # ADRs and architecture notes
 
 ## Agent Behavior Overrides
 
-- PuLP, pandas, XGBoost, scikit-learn, and Next.js are pre-approved dependencies; do not flag them as new.
+- PuLP, pandas, XGBoost, scikit-learn, Next.js, httpx, tenacity, and Playwright are pre-approved dependencies; do not flag them as new.
+- Playwright is used exclusively for FPL SSO auth (`backend/app/clients/fpl_auth.py`); install browser binaries with `playwright install chromium`.
 
 ---
 
