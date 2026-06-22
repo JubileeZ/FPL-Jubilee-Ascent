@@ -47,15 +47,17 @@ graph TD
   7. `player_past_seasons`
   8. `user_squad_picks`
   9. `user_state`
+  Use synchronous SQLAlchemy connection handling (via `psycopg2`) for simple, robust session injection.
 - [ ] Initialize and execute Alembic migrations to build the tables in PostgreSQL.
-- [ ] Implement database ingestion service in `backend/app/services/ingestion.py` that couples fetching raw JSON from the FPL API, writing the JSON to the gitignored `data/raw/` cache, and writing normalized records directly to Postgres.
-- [ ] Add unit and integration tests for DB models, migrations, and the coupled sync/ingest service.
+- [ ] Implement database ingestion service in `backend/app/services/ingestion.py` that couples fetching raw JSON from the FPL API, writing the JSON to the gitignored `data/raw/` cache, and writing normalized records directly to Postgres. Use an upsert strategy (`ON CONFLICT DO UPDATE`) to safely persist updates while keeping foreign key integrity. Ensure all external API calls are made via the client handlers in `backend/app/clients/` (as per Safety Rules).
+- [ ] Add unit and integration tests for DB models, migrations, and the coupled sync/ingest service. Run tests against a dedicated test PostgreSQL database with transaction rollbacks for isolation.
 
 ---
 
 ### 📋 Phase 3: Modular Projection Engine (xP Model) (Planned)
 - [ ] Define **Feature Contract** (inputs schema for models).
 - [ ] Define standard **Model Adapter** interface.
+- [ ] Implement feature engineering logic in Python using `pandas` to compute rolling stats, lags, and difficulty offsets from raw database tables.
 - [ ] Implement baseline statistical model (rolling average points adjusted by fixture difficulty) complying with the Model Adapter.
 - [ ] Setup point projection tables in Postgres with version tracking (`model_version`, `run_at`).
 - [ ] Future extension: Integration of machine learning models (scikit-learn / XGBoost).
@@ -66,8 +68,10 @@ graph TD
 - [ ] Define the **LLM Factor Contract** schema.
 - [ ] Implement the **LLM Blending** service using `LLM_WEIGHT`:
   $$\text{blended\_minutes} = (\text{LLM\_WEIGHT} \times \text{llm\_minutes}) + ((1 - \text{LLM\_WEIGHT}) \times \text{model\_projected\_minutes})$$
+  Ensure the blender checks the `LLM_WEIGHT` flag first: if `LLM_WEIGHT` is `0.0`, disable calling the LLM tool entirely. Ensure the generator outputs are validated against the contract schema before blending.
 - [ ] Implement the **Point Calculator** module to combine blended minutes with predicted performance stats to output final xP.
 - [ ] Implement the MILP Solver (`backend/app/services/optimizer.py`) using PuLP:
+  - Use the default CBC solver packaged with PuLP (zero extra configuration or licensing overhead).
   - Supports configurable multi-gameweek planning horizon (3-8 gameweeks).
   - Handles budget constraints (bank, player costs), squad size restrictions (15-man squad), position quotas, and transfer cost penalties.
 

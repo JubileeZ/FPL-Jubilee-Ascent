@@ -56,4 +56,13 @@ _Avoid_: Formula, point generator
 The configurable lookahead window (3-8 gameweeks) used by the MILP solver to optimize transfer strategy and team selection.
 _Avoid_: Optimization length, gameweek plan
 
+**Inbound Endpoints**:
+FastAPI route handlers defined in `backend/app/api/` that serve HTTP request responses to our Next.js frontend.
+_Avoid_: Outbound API, Clients
+
+**Outbound Clients**:
+Integration modules defined in `backend/app/clients/` that make network requests to external APIs (e.g. FPL API, LLM tool).
+_Avoid_: Inbound API, Route handlers
+
+
 
