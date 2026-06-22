@@ -36,3 +36,24 @@ _Avoid_: xP output, prediction, score
 The JWT session token extracted via Playwright SSO login and cached locally in `data/session_token.json`. Sent to authenticated endpoints in the `"x-api-authorization": "Bearer <token>"` header.
 _Avoid_: Cookie auth, pl_profile cookie, raw cookie session
 
+**Feature Contract**:
+The strictly defined schema of engineered inputs passed to any projection model.
+_Avoid_: Raw features, model inputs
+
+**Model Adapter**:
+A standardized interface that wraps any projection model, accepting a Feature Contract and outputting projections (e.g. expected minutes, performance metrics per minute).
+_Avoid_: Core model, custom model logic
+
+**LLM Blending**:
+The weighted combining of minutes component projections from the Model Adapter and LLM factor outputs using a configurable `LLM_WEIGHT` parameter.
+_Avoid_: Combined prediction, direct LLM score
+
+**Point Calculator**:
+A system module that calculates final expected points (xP) by combining blended minutes with predicted performance metrics.
+_Avoid_: Formula, point generator
+
+**Planning Horizon**:
+The configurable lookahead window (3-8 gameweeks) used by the MILP solver to optimize transfer strategy and team selection.
+_Avoid_: Optimization length, gameweek plan
+
+
