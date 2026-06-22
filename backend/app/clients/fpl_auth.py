@@ -95,7 +95,7 @@ async def async_login() -> str:
         # Wait for the login form input fields to be visible
         logger.info("Waiting for login form fields...")
         email_input = None
-        email_selectors = ['input[name="login"]', 'input[type="email"]', '#login', '#email', 'input[name="email"]']
+        email_selectors = ['input[name="username"]', '#username', 'input[name="login"]', 'input[type="email"]', '#login', '#email', 'input[name="email"]']
         
         # Try to wait for any of the common selectors to appear
         for selector in email_selectors:
