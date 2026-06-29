@@ -1,0 +1,110 @@
+# FPL-Jubilee-Ascent
+# Read by all AI agents (Claude, Gemini, Cursor, Copilot, etc.) working in this repo.
+---
+
+## Project Identity
+
+<!-- AGENT: 2–3 sentences. What does this repo do and why does it exist?
+     Include the primary user, the core problem it solves, and the output it produces.
+     Example: "Order management API for an e-commerce platform. Handles cart, checkout,
+     and fulfillment state. Consumed by web and mobile frontends via REST." -->
+
+**Stack:** <!-- AGENT: list primary language, runtime version, key frameworks, and package manager.
+              Example: Python 3.12 · uv · FastAPI · PostgreSQL · SQLAlchemy · pytest -->
+
+**Monorepo:** no
+
+---
+
+## Repo Structure
+
+<!-- AGENT: List top-level directories and key subdirectories only. Keep to ≤ 15 lines.
+     Annotate each line with a short purpose comment. -->
+
+```
+<repo structure here>
+```
+
+---
+
+## Key Commands
+
+| Command | What it does |
+|---------|-------------|
+| (add your lint command here) | Lint |
+| (add your test command here) | Test |
+
+**Pre-commit gate:** agents must run test and lint commands and confirm both pass before proposing any commit.
+
+---
+
+## Off-Limits: Never Touch Without Explicit Instruction
+
+- `.env` and any file containing secrets or credentials
+- Database migrations — always flag, never auto-apply or auto-run
+- Production configuration files
+- Any file marked `# DO NOT EDIT` or `# GENERATED`
+- <!-- AGENT: add project-specific off-limits entries, e.g. vendored lock files, etc. -->
+
+---
+
+## Project-Specific Safety Rules
+
+- <!-- AGENT: Add safety rules specific to this codebase that agents must follow.
+     Example: "Never run tests against the production database." -->
+
+---
+
+## Code Conventions
+
+- <!-- AGENT: Document conventions specific to this codebase that deviate from defaults or language standards.
+     Example: "Use strict type annotations for all new Python functions." -->
+
+---
+
+## Agent Behavior Overrides
+
+- Keep project documentation edits (AGENTS.md, ROADMAP.md, current-state.md, etc.) telegraphic: no articles, no filler, concise fragments.
+- <!-- AGENT: List custom rules that override default agent behaviors or define project-specific constraints.
+     Example: "- ponytail: Python and uv are pre-approved stack requirements." -->
+
+---
+
+<!-- AZG:MANAGED:START -->
+## Session start
+
+1. Read `docs/agents/current-state.md` (if unfamiliar with repo state).
+2. Read `ROADMAP.md` (first unchecked item in active phase).
+3. Read `task.md` / open issues (if present).
+4. Run `git log -5 --oneline` + `git status` (to sync history).
+5. Do not rely on chat history.
+
+---
+
+## Universal Safety Rules
+
+- No secrets/tokens/credentials in any file.
+- Destructive ops (delete/overwrite/truncate/drop): inline `# DESTRUCTIVE: <reason>`.
+- No new top-level dependencies without flagging in response.
+- Agent harness device changes: implement scalably for current/future devices and new repos.
+- Prefer reversible actions. If irreversible, state clearly before executing.
+- Tool blocked by safety hook? Explain block, suggest exact command/content to write manually.
+- Windows: run CLI/hooks only inside Git Bash.
+
+---
+
+## Domain Vocabulary
+
+- Ambiguous terminology? Read `docs/agents/domain.md`.
+- New terms? Create `CONTEXT.md` at root from `docs/agents/CONTEXT.md.tmpl` to register glossary.
+
+---
+
+## Progress & Issues
+
+- Progress workflow: read `docs/agents/progress.md`.
+- Issue tracker setup: read `docs/agents/issue-tracker.md`.
+- Compaction: collapse completed phase checklists in `ROADMAP.md` to a single header/summary line (Active-Phase Compaction).
+- Cleanup: delete transient session files (`task.md`, `implementation_plan.md`, `walkthrough.md`) once milestone/task is complete.
+
+<!-- AZG:MANAGED:END -->
