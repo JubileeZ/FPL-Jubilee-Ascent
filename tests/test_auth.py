@@ -1,7 +1,6 @@
 import json
 import pytest
 from unittest.mock import AsyncMock, patch
-from pathlib import Path
 
 # Mock jwt token decoding to return arbitrary expiration
 def mock_is_jwt_expired(token):

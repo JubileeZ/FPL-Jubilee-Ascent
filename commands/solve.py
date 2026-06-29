@@ -110,11 +110,11 @@ def main():
     # Load target gameweek from processed parquet
     try:
         df_gw = pd.read_parquet(processed_dir / "gameweeks.parquet")
-        next_gw_row = df_gw[df_gw["is_next"] == True]
+        next_gw_row = df_gw[df_gw["is_next"]]
         if not next_gw_row.empty:
             target_gw = int(next_gw_row.iloc[0]["id"])
         else:
-            unfinished = df_gw[df_gw["finished"] == False]
+            unfinished = df_gw[not df_gw["finished"]]
             if not unfinished.empty:
                 target_gw = int(unfinished.iloc[0]["id"])
             else:

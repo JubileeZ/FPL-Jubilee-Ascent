@@ -1,7 +1,5 @@
 import subprocess
 import pandas as pd
-from pathlib import Path
-from unittest.mock import patch
 
 def test_backtest_cli_run(tmp_path):
     data_dir = tmp_path / "processed"

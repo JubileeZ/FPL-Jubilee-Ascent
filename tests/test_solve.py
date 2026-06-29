@@ -1,7 +1,4 @@
-import json
-import pytest
 import pandas as pd
-from pathlib import Path
 from commands.solve import build_my_data_from_parquet
 
 def test_build_my_data_from_parquet(tmp_path):

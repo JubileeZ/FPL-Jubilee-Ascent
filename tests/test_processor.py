@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-from pathlib import Path
 from features.processor import process_directory
 
 def test_process_directory(tmp_path):

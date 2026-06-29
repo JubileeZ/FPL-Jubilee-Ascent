@@ -1,5 +1,4 @@
 import pandas as pd
-from pathlib import Path
 from features.builder import build_features
 from models.linear_baseline import LinearBaseline
 from projections.exporter import export_projections

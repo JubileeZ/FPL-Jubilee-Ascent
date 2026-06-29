@@ -1,6 +1,5 @@
 import pandas as pd
 from pathlib import Path
-from typing import Optional
 
 def build_features(processed_dir: Path, target_gw: int) -> pd.DataFrame:
     """

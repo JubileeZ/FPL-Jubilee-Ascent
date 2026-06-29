@@ -24,7 +24,7 @@ def get_model(model_name: str) -> BaseModel:
                         model_instance = obj()
                         if model_instance.name == model_name:
                             return model_instance
-            except Exception as e:
+            except Exception:
                 # Log or skip errors during imports
                 continue
                 
