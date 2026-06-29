@@ -56,3 +56,38 @@ def test_modeling_pipeline(tmp_path):
     discovered_model = get_model("linear_baseline")
     assert discovered_model.name == "linear_baseline"
     assert isinstance(discovered_model, LinearBaseline)
+
+def test_run_model_gameweeks_negation(tmp_path):
+    from unittest.mock import patch
+    import commands.run_model
+    from commands.run_model import main
+    
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    
+    df_players = pd.DataFrame([
+        {"id": 101, "first_name": "Bukayo", "second_name": "Saka", "web_name": "Saka", "club_id": 1, "position_id": 3, "now_cost": 100, "status": "a", "chance_of_playing_next_round": 100, "chance_of_playing_this_round": 100, "news": "", "news_added": None, "selected_by_percent": 35.0, "corners_and_indirect_freekicks_order": 1, "direct_freekicks_order": 1, "penalties_order": 1}
+    ])
+    df_players.to_parquet(processed_dir / "players.parquet")
+    
+    df_clubs = pd.DataFrame([
+        {"id": 1, "name": "Arsenal", "short_name": "ARS", "strength": 4, "strength_overall_home": 1200, "strength_overall_away": 1250, "strength_attack_home": 1300, "strength_attack_away": 1350, "strength_defence_home": 1200, "strength_defence_away": 1250}
+    ])
+    df_clubs.to_parquet(processed_dir / "clubs.parquet")
+    
+    df_fixtures = pd.DataFrame([
+        {"id": 10, "gameweek_id": 38, "kickoff_time": "2026-05-28T15:00:00Z", "home_club_id": 1, "away_club_id": 2, "finished": False, "started": False, "team_h_score": None, "team_a_score": None, "team_h_difficulty": 2, "team_a_difficulty": 5}
+    ])
+    df_fixtures.to_parquet(processed_dir / "fixtures.parquet")
+    
+    df_gw = pd.DataFrame([
+        {"id": 37, "name": "GW 37", "deadline_time": "2026-05-21T15:00:00Z", "finished": True, "is_current": True, "is_next": False},
+        {"id": 38, "name": "GW 38", "deadline_time": "2026-05-28T15:00:00Z", "finished": False, "is_current": False, "is_next": False}
+    ])
+    df_gw.to_parquet(processed_dir / "gameweeks.parquet")
+    
+    with patch.object(commands.run_model, "PROJECT_ROOT", tmp_path), \
+         patch("sys.argv", ["commands.run_model", "linear_baseline", "--horizon", "1"]):
+        with patch("commands.run_model.logger.warning") as mock_warn:
+            main()
+            mock_warn.assert_not_called()

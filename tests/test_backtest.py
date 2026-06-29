@@ -7,7 +7,8 @@ def test_backtest_cli_run(tmp_path):
     
     # 1. Create dummy Parquet files
     df_players = pd.DataFrame([
-        {"id": 1, "first_name": "A", "second_name": "B", "web_name": "AB", "club_id": 1, "position_id": 1, "now_cost": 50, "status": "a", "chance_of_playing_next_round": 100, "chance_of_playing_this_round": 100, "news": "", "news_added": None, "selected_by_percent": 10.0, "corners_and_indirect_freekicks_order": None, "direct_freekicks_order": None, "penalties_order": None}
+        {"id": 1, "first_name": "A", "second_name": "B", "web_name": "AB", "club_id": 1, "position_id": 1, "now_cost": 50, "status": "a", "chance_of_playing_next_round": 100, "chance_of_playing_this_round": 100, "news": "", "news_added": None, "selected_by_percent": 10.0, "corners_and_indirect_freekicks_order": None, "direct_freekicks_order": None, "penalties_order": None},
+        {"id": 2, "first_name": "C", "second_name": "D", "web_name": "CD", "club_id": 1, "position_id": 1, "now_cost": 45, "status": "a", "chance_of_playing_next_round": 100, "chance_of_playing_this_round": 100, "news": "", "news_added": None, "selected_by_percent": 5.0, "corners_and_indirect_freekicks_order": None, "direct_freekicks_order": None, "penalties_order": None}
     ])
     df_players.to_parquet(data_dir / "players.parquet")
     
@@ -22,7 +23,8 @@ def test_backtest_cli_run(tmp_path):
     df_fixtures.to_parquet(data_dir / "fixtures.parquet")
     
     df_perf = pd.DataFrame([
-        {"player_id": 1, "fixture_id": 10, "gameweek_id": 15, "opponent_club_id": 2, "was_home": True, "kickoff_time": "2026-05-28T15:00:00Z", "team_h_score": 1, "team_a_score": 1, "price": 50, "selected": 10000, "transfers_balance": 0, "transfers_in": 0, "transfers_out": 0, "minutes": 90, "total_points": 6}
+        {"player_id": 1, "fixture_id": 10, "gameweek_id": 15, "opponent_club_id": 2, "was_home": True, "kickoff_time": "2026-05-28T15:00:00Z", "team_h_score": 1, "team_a_score": 1, "price": 50, "selected": 10000, "transfers_balance": 0, "transfers_in": 0, "transfers_out": 0, "minutes": 90, "total_points": 6},
+        {"player_id": 2, "fixture_id": 10, "gameweek_id": 15, "opponent_club_id": 2, "was_home": True, "kickoff_time": "2026-05-28T15:00:00Z", "team_h_score": 1, "team_a_score": 1, "price": 45, "selected": 5000, "transfers_balance": 0, "transfers_in": 0, "transfers_out": 0, "minutes": 90, "total_points": 2}
     ])
     df_perf.to_parquet(data_dir / "player_performances.parquet")
     

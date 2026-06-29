@@ -47,7 +47,7 @@ def build_my_data_from_parquet(processed_dir: Path) -> dict:
     state_row = df_state.iloc[0]
     
     # Transfers limit/free transfers
-    limit = int(state_row["free_transfers"])
+    limit = None if pd.isna(state_row["free_transfers"]) else int(state_row["free_transfers"])
     
     return {
         "chips": [],
@@ -114,7 +114,7 @@ def main():
         if not next_gw_row.empty:
             target_gw = int(next_gw_row.iloc[0]["id"])
         else:
-            unfinished = df_gw[not df_gw["finished"]]
+            unfinished = df_gw[~df_gw["finished"]]
             if not unfinished.empty:
                 target_gw = int(unfinished.iloc[0]["id"])
             else:

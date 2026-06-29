@@ -35,7 +35,7 @@ def main():
         if not next_gw_row.empty:
             target_gw = int(next_gw_row.iloc[0]["id"])
         else:
-            unfinished = df_gw[not df_gw["finished"]]
+            unfinished = df_gw[~df_gw["finished"]]
             if not unfinished.empty:
                 target_gw = int(unfinished.iloc[0]["id"])
             else:

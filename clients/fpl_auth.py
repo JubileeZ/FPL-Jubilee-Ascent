@@ -183,11 +183,14 @@ async def async_login() -> str:
         async def handle_request(request):
             nonlocal found_auth
             if "/api/" in request.url:
-                headers = await request.all_headers()
-                auth_headers = {k:v for k,v in headers.items() if 'auth' in k.lower() or 'bearer' in v.lower() or 'token' in k.lower()}
-                if auth_headers and 'x-api-authorization' in auth_headers:
-                    logger.info("x-api-authorization header captured!")
-                    found_auth = auth_headers['x-api-authorization']
+                try:
+                    headers = await request.all_headers()
+                    auth_headers = {k:v for k,v in headers.items() if 'auth' in k.lower() or 'bearer' in v.lower() or 'token' in k.lower()}
+                    if auth_headers and 'x-api-authorization' in auth_headers:
+                        logger.info("x-api-authorization header captured!")
+                        found_auth = auth_headers['x-api-authorization']
+                except Exception:
+                    return
         
         page.on("request", handle_request)
         
