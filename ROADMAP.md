@@ -15,49 +15,41 @@ This roadmap tracks the development progress, target architecture, and phases fo
 
 ---
 
-## Current Project Status: **Phase 1 (Active)**
+## Current Project Status: **Complete (All Phases Implemented)**
 
 ```mermaid
 flowchart TD
-    P1["Phase 1: Foundations & Auth ⏳"] --> P2["Phase 2: Ingestion & Processing"]
-    P2 --> P3["Phase 3: Modeling & Backtesting"]
-    P3 --> P4["Phase 4: Solver Vendoring & Execution"]
+    P1["Phase 1: Foundations & Auth ✅"] --> P2["Phase 2: Ingestion & Processing ✅"]
+    P2 --> P3["Phase 3: Modeling & Backtesting ✅"]
+    P3 --> P4["Phase 4: Solver Vendoring & Execution ✅"]
 
-    style P1 fill:#1a365d,stroke:#2b6cb0,stroke-width:2px,color:#fff
-    style P2 fill:#2d3748,stroke:#4a5568,stroke-width:1px,color:#a0aec0
-    style P3 fill:#2d3748,stroke:#4a5568,stroke-width:1px,color:#a0aec0
-    style P4 fill:#2d3748,stroke:#4a5568,stroke-width:1px,color:#a0aec0
+    style P1 fill:#1c7a30,stroke:#155724,stroke-width:2px,color:#fff
+    style P2 fill:#1c7a30,stroke:#155724,stroke-width:2px,color:#fff
+    style P3 fill:#1c7a30,stroke:#155724,stroke-width:2px,color:#fff
+    style P4 fill:#1c7a30,stroke:#155724,stroke-width:2px,color:#fff
 ```
 
 ---
 
 ## Implementation Phases
 
-### ⏳ Phase 1: Repo Infrastructure, Foundations & Auth (Active)
-- [x] Initialize repository packages and virtualenv with dependencies.
-- [/] Refactor `fpl_auth.py` to support tiered direct HTTP, manual token, and Playwright login.
-- [ ] Configure testing with pytest and code formatting with ruff.
+### ✅ Phase 1: Repo Infrastructure, Foundations & Auth (Completed)
+All repository scaffolding, tiered authentication (Playwright, direct HTTP, environment tokens), and developer checks (ruff, pytest) are fully implemented.
 
 ---
 
-### 📋 Phase 2: Ingestion, Processing & Archiving (Planned)
-- [ ] Implement command to refresh raw FPL API data.
-- [ ] Implement command to archive/snapshot the 2025/26 season raw JSON.
-- [ ] Process raw JSON into Parquet tables (players, clubs, gameweeks, fixtures, performances).
+### ✅ Phase 2: Ingestion, Processing & Archiving (Completed)
+Raw data refresh pipeline, historical season snapshot scripts, and raw-to-parquet processors are fully implemented.
 
 ---
 
-### 📋 Phase 3: Pluggable Modeling & Backtesting (Planned)
-- [ ] Implement `BaseModel` contract and linear rolling baseline model.
-- [ ] Construct feature compiling and projection exporting contracts.
-- [ ] Implement backtesting command to run and score model projections against historical Parquet data.
+### ✅ Phase 3: Pluggable Modeling & Backtesting (Completed)
+Baseline models, feature and projection exporters, and historical backtesting evaluations are fully implemented.
 
 ---
 
-### 📋 Phase 4: Solver Vendoring & Execution (Planned)
-- [ ] Vendor open-fpl-solver modules into repository.
-- [ ] Implement solve script wrapper taking generated score projections CSV.
-- [ ] Implement unconstrained top-picks report script generating console/CSV rankings.
+### ✅ Phase 4: Solver Vendoring & Execution (Completed)
+Vendored MILP solver, multi-period transfer optimization wrapper, and top-picks console/CSV rank reports are fully implemented.
 
 ---
 
