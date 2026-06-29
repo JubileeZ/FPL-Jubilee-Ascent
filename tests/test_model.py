@@ -1,0 +1,59 @@
+import pandas as pd
+from pathlib import Path
+from features.builder import build_features
+from models.linear_baseline import LinearBaseline
+from projections.exporter import export_projections
+
+def test_modeling_pipeline(tmp_path):
+    processed_dir = tmp_path / "processed"
+    processed_dir.mkdir()
+    
+    # 1. Create dummy Parquet files
+    df_players = pd.DataFrame([
+        {"id": 101, "first_name": "Bukayo", "second_name": "Saka", "web_name": "Saka", "club_id": 1, "position_id": 3, "now_cost": 100, "status": "a", "chance_of_playing_next_round": 100, "chance_of_playing_this_round": 100, "news": "", "news_added": None, "selected_by_percent": 35.0, "corners_and_indirect_freekicks_order": 1, "direct_freekicks_order": 1, "penalties_order": 1}
+    ])
+    df_players.to_parquet(processed_dir / "players.parquet")
+    
+    df_clubs = pd.DataFrame([
+        {"id": 1, "name": "Arsenal", "short_name": "ARS", "strength": 4, "strength_overall_home": 1200, "strength_overall_away": 1250, "strength_attack_home": 1300, "strength_attack_away": 1350, "strength_defence_home": 1200, "strength_defence_away": 1250}
+    ])
+    df_clubs.to_parquet(processed_dir / "clubs.parquet")
+    
+    df_fixtures = pd.DataFrame([
+        {"id": 10, "gameweek_id": 38, "kickoff_time": "2026-05-28T15:00:00Z", "home_club_id": 1, "away_club_id": 2, "finished": False, "started": False, "team_h_score": None, "team_a_score": None, "team_h_difficulty": 2, "team_a_difficulty": 5}
+    ])
+    df_fixtures.to_parquet(processed_dir / "fixtures.parquet")
+    
+    df_perf = pd.DataFrame([
+        {"player_id": 101, "fixture_id": 1, "gameweek_id": 37, "opponent_club_id": 3, "was_home": True, "kickoff_time": "2026-05-21T15:00:00Z", "team_h_score": 2, "team_a_score": 0, "price": 100, "selected": 2000000, "transfers_balance": 1000, "transfers_in": 2000, "transfers_out": 1000, "minutes": 90, "total_points": 8}
+    ])
+    df_perf.to_parquet(processed_dir / "player_performances.parquet")
+    
+    # 2. Build features
+    df_feat = build_features(processed_dir, target_gw=38)
+    assert len(df_feat) == 1
+    assert df_feat.loc[0, "avg_points_3gw"] == 8.0
+    assert df_feat.loc[0, "avg_mins_3gw"] == 90.0
+    assert df_feat.loc[0, "difficulty"] == 2  # home perspective difficulty for Arsenal is 2
+    
+    # 3. Run model
+    model = LinearBaseline()
+    df_proj = model.predict(df_feat, horizon=3)
+    assert len(df_proj) == 3  # 3 weeks predictions for 1 player
+    assert list(df_proj["gameweek_id"]) == [38, 39, 40]
+    
+    # 4. Export projections
+    out_csv = tmp_path / "projections.csv"
+    export_projections(df_proj, df_players, df_clubs, out_csv)
+    assert out_csv.exists()
+    
+    df_csv = pd.read_csv(out_csv)
+    assert len(df_csv) == 1
+    assert "38_Pts" in df_csv.columns
+    assert "38_xMins" in df_csv.columns
+    
+    # 5. Test auto-discovery
+    from models import get_model
+    discovered_model = get_model("linear_baseline")
+    assert discovered_model.name == "linear_baseline"
+    assert isinstance(discovered_model, LinearBaseline)

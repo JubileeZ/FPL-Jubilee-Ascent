@@ -1,0 +1,23 @@
+[project]
+name = "fpl-jubilee-ascent"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.14"
+dependencies = [
+    "fuzzywuzzy>=0.18.0",
+    "highspy>=1.15.0",
+    "httpx>=0.28.1",
+    "pandas>=3.0.4",
+    "pyarrow>=24.0.0",
+    "sasoptpy>=1.0.5",
+    "tabulate>=0.10.0",
+    "tenacity>=9.1.4",
+]
+
+[dependency-groups]
+dev = [
+    "playwright>=1.61.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.15.20",
+]

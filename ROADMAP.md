@@ -8,25 +8,20 @@ This roadmap tracks the development progress, target architecture, and phases fo
 
 ## Personas
 
-<!-- AGENT: Define the primary user and developer personas.
-     Identify who they are, their goals, and their primary interface surface.
-     Example:
-     | Persona | Goal | Primary surface |
-     |---------|------|-----------------|
-     | **User** | Query API and view dashboard | Web UI |
--->
+| Persona | Goal | Primary surface |
+|---------|------|-----------------|
+| **User** | Run data refresh, backtest models, run solver to get optimal transfer plans | CLI |
+| **Developer** | Plug in new score projection models | Python classes / CLI |
 
 ---
 
-## Current Project Status: **Phase 1 (Foundations)**
-
-<!-- AGENT: Update the active phase and customize the diagram/phases below. -->
+## Current Project Status: **Phase 1 (Active)**
 
 ```mermaid
 flowchart TD
-    P1["Phase 1: Foundations ⏳"] --> P2["Phase 2: Core Implementation"]
-    P2 --> P3["Phase 3: Integration & Testing"]
-    P3 --> P4["Phase 4: Deployment"]
+    P1["Phase 1: Foundations & Auth ⏳"] --> P2["Phase 2: Ingestion & Processing"]
+    P2 --> P3["Phase 3: Modeling & Backtesting"]
+    P3 --> P4["Phase 4: Solver Vendoring & Execution"]
 
     style P1 fill:#1a365d,stroke:#2b6cb0,stroke-width:2px,color:#fff
     style P2 fill:#2d3748,stroke:#4a5568,stroke-width:1px,color:#a0aec0
@@ -38,47 +33,31 @@ flowchart TD
 
 ## Implementation Phases
 
-### ⏳ Phase 1: Repo Infrastructure & Foundations (Active)
-
-<!-- AGENT: List the foundations for Phase 1.
-     Example:
-     - [ ] Initialize repository structure and configuration.
-     - [ ] Setup testing and linting tools.
--->
-- [ ] 
+### ⏳ Phase 1: Repo Infrastructure, Foundations & Auth (Active)
+- [x] Initialize repository packages and virtualenv with dependencies.
+- [/] Refactor `fpl_auth.py` to support tiered direct HTTP, manual token, and Playwright login.
+- [ ] Configure testing with pytest and code formatting with ruff.
 
 ---
 
-### 📋 Phase 2: Core Implementation (Planned)
-
-<!-- AGENT: List the core features for Phase 2.
-     Example:
-     - [ ] Core business logic and data structures.
-     - [ ] Basic unit and integration tests.
--->
-- [ ] 
+### 📋 Phase 2: Ingestion, Processing & Archiving (Planned)
+- [ ] Implement command to refresh raw FPL API data.
+- [ ] Implement command to archive/snapshot the 2025/26 season raw JSON.
+- [ ] Process raw JSON into Parquet tables (players, clubs, gameweeks, fixtures, performances).
 
 ---
 
-### 📋 Phase 3: Integration & Testing (Planned)
-
-<!-- AGENT: List the integration targets for Phase 3.
-     Example:
-     - [ ] Integration with external services or databases.
-     - [ ] System and end-to-end verification.
--->
-- [ ] 
+### 📋 Phase 3: Pluggable Modeling & Backtesting (Planned)
+- [ ] Implement `BaseModel` contract and linear rolling baseline model.
+- [ ] Construct feature compiling and projection exporting contracts.
+- [ ] Implement backtesting command to run and score model projections against historical Parquet data.
 
 ---
 
-### 📋 Phase 4: Deployment & Release (Planned)
-
-<!-- AGENT: List deployment and release steps for Phase 4.
-     Example:
-     - [ ] Build and release pipeline.
-     - [ ] Production hosting setup and verification.
--->
-- [ ] 
+### 📋 Phase 4: Solver Vendoring & Execution (Planned)
+- [ ] Vendor open-fpl-solver modules into repository.
+- [ ] Implement solve script wrapper taking generated score projections CSV.
+- [ ] Implement unconstrained top-picks report script generating console/CSV rankings.
 
 ---
 

@@ -212,7 +212,20 @@ async def async_login() -> str:
 
 
 async def get_jwt_token(force_refresh: bool = False) -> str:
-    """Get a valid FPL session token, retrieving from local cache or performing login if necessary."""
+    """Get a valid FPL session token, retrieving from environment variable, local cache, or Playwright login."""
+    # 1. Tier 1: Check FPL_TOKEN env var
+    env_token = os.getenv("FPL_TOKEN")
+    if env_token:
+        # Strip Bearer if passed in with prefix
+        if env_token.lower().startswith("bearer "):
+            env_token = env_token[7:].strip()
+        if not is_jwt_expired(env_token):
+            logger.info("Using valid FPL_TOKEN from environment.")
+            return env_token
+        else:
+            logger.warning("FPL_TOKEN from environment is expired.")
+
+    # 2. Tier 2: Check cached token
     if not force_refresh and TOKEN_CACHE_PATH.exists():
         try:
             with open(TOKEN_CACHE_PATH, "r") as f:
@@ -224,7 +237,17 @@ async def get_jwt_token(force_refresh: bool = False) -> str:
         except Exception as e:
             logger.warning(f"Failed to read cached token: {e}")
 
-    # Fetch new token
+    # 3. Tier 3: Playwright Login via Email/Password
+    email = os.getenv("FPL_EMAIL")
+    password = os.getenv("FPL_PASSWORD")
+
+    if not email or not password:
+        raise ValueError(
+            "FPL authentication missing. Please provide FPL_TOKEN (bearer token) OR "
+            "both FPL_EMAIL and FPL_PASSWORD in environment variables."
+        )
+
+    # Fetch new token via Playwright login
     token = await async_login()
 
     # Cache token

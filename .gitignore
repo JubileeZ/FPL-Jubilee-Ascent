@@ -1,0 +1,31 @@
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Python caching
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pytest caching
+.pytest_cache/
+.cache/
+.ipynb_checkpoints/
+
+# IDE files
+.vscode/
+.idea/
+.cursor/
+
+# FPL transient data
+data/raw/
+data/processed/
+data/reports/
+data/session_token.json
+data/*.csv
+data/*.json
+
+# But do NOT ignore archived seasons
+!data/archive/

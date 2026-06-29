@@ -4,13 +4,9 @@
 
 ## Project Identity
 
-<!-- AGENT: 2–3 sentences. What does this repo do and why does it exist?
-     Include the primary user, the core problem it solves, and the output it produces.
-     Example: "Order management API for an e-commerce platform. Handles cart, checkout,
-     and fulfillment state. Consumed by web and mobile frontends via REST." -->
+FPL score projection and optimization engine. Ingests FPL API data, evaluates models using backtesting, and generates transfer plans via MILP. Consumed by user via CLI commands.
 
-**Stack:** <!-- AGENT: list primary language, runtime version, key frameworks, and package manager.
-              Example: Python 3.12 · uv · FastAPI · PostgreSQL · SQLAlchemy · pytest -->
+**Stack:** Python 3.14 · uv · pandas · pyarrow · sasoptpy · highspy · pytest · playwright
 
 **Monorepo:** no
 
@@ -18,11 +14,16 @@
 
 ## Repo Structure
 
-<!-- AGENT: List top-level directories and key subdirectories only. Keep to ≤ 15 lines.
-     Annotate each line with a short purpose comment. -->
-
 ```
-<repo structure here>
+clients/      # FPL API and auth clients
+models/       # custom scoring models (convention-based auto-discovery)
+features/     # FeatureContract builder (raw to feature dataframe)
+projections/  # ProjectionContract exporter (features to solver CSV)
+solver/       # vendored open-fpl-solver source
+backtesting/  # backtest evaluation engine and metrics
+commands/     # CLI command entry points
+data/         # transient raw API cache, season archives, solver reports
+docs/         # context vocabulary and data dictionary
 ```
 
 ---
@@ -31,8 +32,8 @@
 
 | Command | What it does |
 |---------|-------------|
-| (add your lint command here) | Lint |
-| (add your test command here) | Test |
+| `uv run ruff check .` | Lint codebase |
+| `uv run pytest` | Run test suite |
 
 **Pre-commit gate:** agents must run test and lint commands and confirm both pass before proposing any commit.
 
@@ -44,29 +45,31 @@
 - Database migrations — always flag, never auto-apply or auto-run
 - Production configuration files
 - Any file marked `# DO NOT EDIT` or `# GENERATED`
-- <!-- AGENT: add project-specific off-limits entries, e.g. vendored lock files, etc. -->
+- `data/archive/` (historical files must only be modified via snapshot script)
 
 ---
 
 ## Project-Specific Safety Rules
 
-- <!-- AGENT: Add safety rules specific to this codebase that agents must follow.
-     Example: "Never run tests against the production database." -->
+- Test commands must never make real external HTTP requests; use HTTPX mocks/fixtures.
+- Playwright auth flow must only be invoked when direct HTTP login and token paste fail.
+- Never delete archive Parquet files outside of destructive operations.
 
 ---
 
 ## Code Conventions
 
-- <!-- AGENT: Document conventions specific to this codebase that deviate from defaults or language standards.
-     Example: "Use strict type annotations for all new Python functions." -->
+- All CLI commands must be runnable as modules (e.g. `uv run python -m commands.refresh_data`).
+- Models must adhere to the `BaseModel` abstract class contract.
+- Use explicit type annotations for all new python code.
 
 ---
 
 ## Agent Behavior Overrides
 
 - Keep project documentation edits (AGENTS.md, ROADMAP.md, current-state.md, etc.) telegraphic: no articles, no filler, concise fragments.
-- <!-- AGENT: List custom rules that override default agent behaviors or define project-specific constraints.
-     Example: "- ponytail: Python and uv are pre-approved stack requirements." -->
+- ponytail: Python 3.14 and uv are pre-approved stack requirements.
+- ponytail: Prefer single line expressions when possible; avoid unnecessary abstractions.
 
 ---
 
