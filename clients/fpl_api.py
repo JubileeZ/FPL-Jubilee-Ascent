@@ -8,7 +8,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 logger = logging.getLogger(__name__)
 
 # Walk up to project root
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_CACHE_DIR = PROJECT_ROOT / "data" / "raw"
 
 BASE_URL = "https://fantasy.premierleague.com/api"
@@ -160,4 +160,3 @@ async def fetch_gameweek_picks(
     if write_cache:
         save_raw_cache(f"entry_{entry_id}_picks_gw_{gw_id}.json", data)
     return data
-

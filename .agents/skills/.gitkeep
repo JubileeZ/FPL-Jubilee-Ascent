@@ -1,3 +1,0 @@
-# templates/project/.agents/skills/ — project-local skills directory
-# Place project-specific skill files here.
-# Global skills are managed by azg setup in ~/.gemini/antigravity-cli/skills/.

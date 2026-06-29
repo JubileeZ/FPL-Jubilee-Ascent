@@ -8,8 +8,8 @@ from playwright.async_api import async_playwright
 
 logger = logging.getLogger(__name__)
 
-# Walk up from this file's directory backend/app/clients/fpl_auth.py to project root
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+# Walk up from this file's directory clients/fpl_auth.py to project root
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TOKEN_CACHE_PATH = PROJECT_ROOT / "data" / "session_token.json"
 
 
