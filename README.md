@@ -10,34 +10,32 @@ FPL score projection and optimization engine. Ingests FPL API data, evaluates mo
 
 ## Installation
 
-1. Create virtual environment:
-   ```bash
-   python -m venv .venv
-   ```
+1. Install [uv](https://docs.astral.sh/uv/) (Python package manager).
 2. Install dependencies:
    ```bash
-   .venv/bin/pip install -r pyproject.toml
+   uv sync
    ```
-   *Note:* Ensure dependencies are installed as defined in [pyproject.toml](file:///home/jubileez/FPL-Jubilee-Ascent/pyproject.toml).
 3. Install Playwright Chromium binary (required for data refresh/auth):
    ```bash
-   .venv/bin/playwright install chromium
+   uv run playwright install chromium
    ```
 4. Setup environment variables. Copy `.env.example` to `.env` and fill:
    - `FPL_EMAIL`: FPL account email (optional, for manager squad data)
    - `FPL_PASSWORD`: FPL account password (optional)
-   - `FPL_TOKEN`: FPL API token (optional)
+   - `FPL_TOKEN`: FPL API token (optional, see [Manual Token Extraction](#manual-fpl-token-extraction) below)
 
 ## CLI Usage Flow
 
-Commands run as modules. Ensure `PYTHONPATH` set to project root or run from virtual environment.
+All commands use `uv run python -m ...`.
+
+> **Fallback:** If `uv` is not installed globally, use `PYTHONPATH=. .venv/bin/python -m ...` instead.
 
 ### 1. Ingest Data
 
 Fetch public FPL data, player statistics, fixtures, and manager-specific team/squad data. Convert raw JSON to processed Parquet tables.
 
 ```bash
-PYTHONPATH=. .venv/bin/python -m commands.refresh_data
+uv run python -m commands.refresh_data
 ```
 
 ### 2. Run Projections
@@ -45,11 +43,11 @@ PYTHONPATH=. .venv/bin/python -m commands.refresh_data
 Generate per-player per-gameweek expected points (xP) and minutes projections using chosen model. Saves projection table to `data/<model_name>.csv`.
 
 ```bash
-PYTHONPATH=. .venv/bin/python -m commands.run_model <model_name> --horizon <gws>
+uv run python -m commands.run_model <model_name> --horizon <gws>
 ```
 *Example (default 5 gameweeks horizon):*
 ```bash
-PYTHONPATH=. .venv/bin/python -m commands.run_model linear_baseline --horizon 5
+uv run python -m commands.run_model linear_baseline --horizon 5
 ```
 
 ### 3. Generate Transfer Plan (Solve MILP)
@@ -58,11 +56,11 @@ Compute optimal squad selection and transfer plans over planning horizon using M
 
 - Preseason solver (new squad selection):
   ```bash
-  PYTHONPATH=. .venv/bin/python -m commands.solve --preseason --xmin_lb 0
+  uv run python -m commands.solve --preseason --xmin_lb 0
   ```
 - Regular season solver (optimizes active manager squad):
   ```bash
-  PYTHONPATH=. .venv/bin/python -m commands.solve --model linear_baseline --horizon 5
+  uv run python -m commands.solve --model linear_baseline --horizon 5
   ```
   *Note:* CLI accepts options/settings overrides dynamically (e.g. `--xmin_lb 0` or `--decay_base 0.85`).
 
@@ -71,7 +69,7 @@ Compute optimal squad selection and transfer plans over planning horizon using M
 Produce console ranking tables by position and save full CSV report to `data/reports/top_picks_<model_name>.csv`.
 
 ```bash
-PYTHONPATH=. .venv/bin/python -m commands.report --model linear_baseline --horizon 5
+uv run python -m commands.report --model linear_baseline --horizon 5
 ```
 
 ### 5. Backtest Models
@@ -79,7 +77,7 @@ PYTHONPATH=. .venv/bin/python -m commands.report --model linear_baseline --horiz
 Simulate historical model performance over specified gameweek range using player performances archive.
 
 ```bash
-PYTHONPATH=. .venv/bin/python -m commands.backtest linear_baseline --gw_range 20-30
+uv run python -m commands.backtest linear_baseline --gw_range 20-30
 ```
 
 ### 6. Season Archiving
@@ -87,7 +85,7 @@ PYTHONPATH=. .venv/bin/python -m commands.backtest linear_baseline --gw_range 20
 Snapshot and process raw/processed data for historical season analysis.
 
 ```bash
-PYTHONPATH=. .venv/bin/python -m commands.snapshot_season
+uv run python -m commands.snapshot_season
 ```
 
 ## Adding Custom Models
@@ -121,9 +119,24 @@ Run tests and checks before committing changes.
 
 - Lint codebase:
   ```bash
-  .venv/bin/ruff check .
+  uv run ruff check .
   ```
 - Run test suite:
   ```bash
-  PYTHONPATH=. .venv/bin/pytest
+  uv run pytest
   ```
+
+## Manual FPL Token Extraction
+
+Playwright browser automation can be blocked by bot detection. To bypass, extract the JWT token manually:
+
+1. Log in to [fantasy.premierleague.com](https://fantasy.premierleague.com) in your browser.
+2. Open browser DevTools (F12) → **Network** tab.
+3. Navigate to any authenticated page (e.g. Transfers, My Team).
+4. Find a request to `fantasy.premierleague.com/api/` (e.g. `/api/me/`).
+5. In the request headers, copy the value of `x-api-authorization`.
+6. Paste into `.env`:
+   ```
+   FPL_TOKEN=<copied JWT value>
+   ```
+7. Run commands normally — token will be used instead of Playwright login.

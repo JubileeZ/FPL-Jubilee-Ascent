@@ -1,5 +1,6 @@
 import pandas as pd
-from commands.solve import build_my_data_from_parquet
+from unittest.mock import patch
+from commands.solve import build_my_data_from_parquet, main
 
 def test_build_my_data_from_parquet(tmp_path):
     # 1. Create mock processed tables
@@ -50,3 +51,20 @@ def test_build_my_data_with_unlimited_transfers(tmp_path):
     my_data = build_my_data_from_parquet(tmp_path)
     
     assert my_data["transfers"]["limit"] is None
+
+def test_solve_cli_prints_summary(capsys):
+    mock_settings = {"datasource": "linear_baseline", "horizon": 5, "preseason": True}
+    mock_solutions = [{"summary": "Mock recommended transfers and lineups", "statistics": {}, "picks": pd.DataFrame()}]
+    
+    with patch("commands.solve.load_settings", return_value=mock_settings), \
+         patch("commands.solve.prep_data", return_value={}), \
+         patch("commands.solve.solve_multi_period_fpl", return_value=mock_solutions), \
+         patch("commands.solve.create_squad_timeline") as mock_timeline, \
+         patch("sys.argv", ["commands.solve", "--preseason"]):
+         
+        main()
+        
+        captured = capsys.readouterr()
+        assert "RECOMMENDED SQUAD & TRANSFER PLAN" in captured.out
+        assert "Mock recommended transfers and lineups" in captured.out
+        mock_timeline.assert_called_once()

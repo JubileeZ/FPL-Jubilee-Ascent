@@ -8,6 +8,9 @@ from tabulate import tabulate
 # Set up path to include root
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from clients.env_loader import load_env
+load_env()
+
 from solver.utils import load_settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

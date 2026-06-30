@@ -31,12 +31,12 @@ Read if no prior context. `ROADMAP.md` shows target; this file shows what exists
 ## Safe commands today
 
 ```bash
-PYTHONPATH=. .venv/bin/pytest                     # Run pytest
-.venv/bin/ruff check .                            # Lint code
-PYTHONPATH=. .venv/bin/python -m commands.refresh_data   # Ingest current gameweek data
-PYTHONPATH=. .venv/bin/python -m commands.run_model linear_baseline   # Generate projections
-PYTHONPATH=. .venv/bin/python -m commands.solve --preseason --xmin_lb 0 # Optimize preseason transfers
-PYTHONPATH=. .venv/bin/python -m commands.report                      # Print report
+uv run pytest                                          # Run pytest
+uv run ruff check .                                    # Lint code
+uv run python -m commands.refresh_data                 # Ingest current gameweek data
+uv run python -m commands.run_model linear_baseline    # Generate projections
+uv run python -m commands.solve --preseason --xmin_lb 0 # Optimize preseason transfers
+uv run python -m commands.report                       # Print report
 ```
 
 ---

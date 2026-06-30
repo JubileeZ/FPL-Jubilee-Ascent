@@ -1,0 +1,23 @@
+import os
+from pathlib import Path
+
+def load_env(env_path: Path | None = None) -> None:
+    """Loads environment variables from a .env file if it exists."""
+    if env_path is None:
+        env_path = Path(__file__).resolve().parents[1] / ".env"
+    if not env_path.exists():
+        return
+    with open(env_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            key = key.strip()
+            val = val.strip()
+            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                val = val[1:-1]
+            if key and key not in os.environ:
+                os.environ[key] = val

@@ -7,8 +7,12 @@ from pathlib import Path
 # Set up path to include root
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from clients.env_loader import load_env
+load_env()
+
 from solver.utils import load_settings
 from solver.solver import prep_data, solve_multi_period_fpl
+from solver.visualization import create_squad_timeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -144,8 +148,36 @@ def main():
         sys.exit(1)
         
     logger.info("Executing MILP solver...")
-    solve_multi_period_fpl(solver_data, options)
+    solutions = solve_multi_period_fpl(solver_data, options)
     logger.info("Solver run complete!")
+    
+    if solutions and isinstance(solutions, list):
+        best_sol = solutions[0]
+        if "summary" in best_sol:
+            print("\n" + "="*50)
+            print("RECOMMENDED SQUAD & TRANSFER PLAN")
+            print("="*50)
+            print(best_sol["summary"])
+            print("="*50 + "\n")
+            
+        if "picks" in best_sol and "statistics" in best_sol:
+            try:
+                model_name = options.get("datasource", "model")
+                filename_base = f"squad_timeline_{model_name}"
+                expected_filepath = PROJECT_ROOT / "data" / "images" / f"{filename_base}.png"
+                
+                initial_squad = [] if options.get("preseason") else [p["element"] for p in my_data.get("picks", [])]
+                
+                logger.info("Generating visual squad timeline plot...")
+                create_squad_timeline(
+                    current_squad=initial_squad,
+                    statistics=best_sol["statistics"],
+                    picks=best_sol["picks"],
+                    filename=filename_base
+                )
+                logger.info(f"Visual squad timeline saved to {expected_filepath}")
+            except Exception as e:
+                logger.error(f"Failed to generate squad timeline plot: {e}")
 
 if __name__ == "__main__":
     main()

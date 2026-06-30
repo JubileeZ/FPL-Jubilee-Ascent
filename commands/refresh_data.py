@@ -7,11 +7,15 @@ from pathlib import Path
 # Set up path to include root
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from clients.env_loader import load_env
+load_env()
+
 from clients.fpl_api import (
     fetch_bootstrap_static,
     fetch_gameweek_fixtures,
     fetch_user_details,
     fetch_user_team,
+    fetch_element_summary,
 )
 from clients.fpl_auth import get_jwt_token
 from features.processor import process_directory
@@ -33,6 +37,28 @@ async def main():
         
         logger.info("Fetching all fixtures...")
         await fetch_gameweek_fixtures(client, write_cache=True)
+        
+        # Fetch element summaries for all active players
+        elements = bootstrap.get("elements", [])
+        player_ids = [player["id"] for player in elements]
+        logger.info(f"Fetching element summaries for all {len(player_ids)} players (concurrency limit = 5)...")
+        
+        semaphore_elements = asyncio.Semaphore(5)
+        
+        async def fetch_summary(player_id):
+            async with semaphore_elements:
+                try:
+                    await fetch_element_summary(client, player_id, write_cache=True)
+                except Exception as e:
+                    logger.error(f"Failed to fetch summary for player {player_id}: {e}")
+                    
+        # Gather in chunks to avoid overwhelming endpoints
+        chunk_size = 50
+        for i in range(0, len(player_ids), chunk_size):
+            chunk = player_ids[i:i + chunk_size]
+            await asyncio.gather(*(fetch_summary(pid) for pid in chunk))
+            logger.info(f"Progress: fetched {i + len(chunk)}/{len(player_ids)} player summaries.")
+            await asyncio.sleep(0.5)
         
         # Check authentication to fetch user-specific squad details
         try:

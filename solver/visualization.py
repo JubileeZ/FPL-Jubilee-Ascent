@@ -128,8 +128,8 @@ def _setup_figure_and_data(picks, current_squad):
     df_base = df[df["week"] == min(df["week"])]
     gameweeks = sorted(df_squad["week"].unique())
 
-    # Handle preseason scenario (earliest gameweek is 1)
-    if min(gameweeks) == 1:
+    # Handle preseason scenario (earliest gameweek is 1 or empty current_squad)
+    if min(gameweeks) == 1 or not current_squad:
         base_week = None  # No base team in preseason
     else:
         base_week = min(gameweeks) - 1
@@ -208,12 +208,14 @@ def _add_player_cells(ax, gw_idx, gw_players, week, player_indexes):
 
 def _add_transfers(ax, gw_idx, week, picks, player_indexes):
     """Add transfer lines between gameweeks."""
-    # Calculate fh_week from picks data
-    fh_week = picks.loc[picks["chip"] == "FH"].iloc[0]["week"] if len(picks.loc[picks["chip"] == "FH"]) > 0 else None
-
     # Get previous week from player_indexes keys
     prev_weeks = [w for w in player_indexes.keys() if w < week]
-    prev_week_int = max(prev_weeks) if prev_weeks else week - 1
+    if not prev_weeks:
+        return
+    prev_week_int = max(prev_weeks)
+
+    # Calculate fh_week from picks data
+    fh_week = picks.loc[picks["chip"] == "FH"].iloc[0]["week"] if len(picks.loc[picks["chip"] == "FH"]) > 0 else None
 
     transfers_in = picks.loc[(picks["week"] == week) & (picks["transfer_in"] == 1)]
     transfers_out = picks.loc[(picks["week"] == week) & (picks["transfer_out"] == 1)]
